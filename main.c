@@ -4,6 +4,7 @@
 #include <stdint.h>
 #define GL_GLEXT_PROTOTYPES
 #include <GL/gl.h>
+#define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 
 typedef int8_t i8;
