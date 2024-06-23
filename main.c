@@ -162,7 +162,7 @@ int main() {
     glEnable(GL_DEPTH_TEST);
     
     stbi_set_flip_vertically_on_load(true);
-    data = stbi_load("texture.jpg", &tex_width, &tex_height, &nr_channels, 0);
+    data = stbi_load("textures/texture.jpg", &tex_width, &tex_height, &nr_channels, 0);
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
