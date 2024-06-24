@@ -137,10 +137,7 @@ char* read_whole_file(FILE*);
 
 int main() {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
-    window = SDL_CreateWindow(
-        "m        o        o        d", SDL_WINDOWPOS_CENTERED_DISPLAY(0),
-        SDL_WINDOWPOS_CENTERED_DISPLAY(0), 640, 480,
-        SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
+    window = SDL_CreateWindow("m        o        o        d", SDL_WINDOWPOS_CENTERED_DISPLAY(0), SDL_WINDOWPOS_CENTERED_DISPLAY(0), 640, 480, SDL_WINDOW_OPENGL | SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK, SDL_GL_CONTEXT_PROFILE_CORE);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 4);
     SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
@@ -251,6 +248,9 @@ int tick() {
     vec3 camera_front_up;
     vec3 direction;
     bool first_mouse = 1;
+    vec3 axis = {1.0f, 0.0f, 0.0f};
+    vec3 camera_normalize = {camera_front[0], 0.0f, camera_front[2]};
+    glm_vec3_normalize(camera_normalize);
     while(SDL_PollEvent(&event)) {
         switch(event.type) {
             case SDL_QUIT:
@@ -267,20 +267,25 @@ int tick() {
             case SDL_KEYDOWN:
                 switch(event.key.keysym.sym) {
                         case SDLK_w:
-                        glm_vec3_muladds(camera_front, camera_speed, camera_position);
+                        glm_vec3_muladds(camera_normalize, camera_speed, camera_position);
+                        camera_position[1] = 0.0f;
                         break;
                     case SDLK_s:
-                        glm_vec3_mulsubs(camera_front, camera_speed, camera_position);
+                        glm_vec3_mulsubs(camera_normalize, camera_speed, camera_position);
+                        camera_position[1] = 0.0f;
                         break;
                     case SDLK_a:
-                        glm_vec3_cross(camera_front, camera_up, camera_front_up);
+                        glm_vec3_cross(camera_normalize, camera_up, camera_front_up);
                         glm_vec3_normalize(camera_front_up);
                         glm_vec3_muladds(camera_front_up, camera_speed, camera_position);
+                        camera_position[1] = 0.0f;
                         break;
                     case SDLK_d:
-                        glm_vec3_cross(camera_front, camera_up, camera_front_up);
+                        camera_up[0] = 1.0f/3.0f;
+                        glm_vec3_cross(camera_normalize, camera_up, camera_front_up);
                         glm_vec3_normalize(camera_front_up);
                         glm_vec3_mulsubs(camera_front_up, camera_speed, camera_position);
+                        camera_position[1] = 0.0f;
                         break;
                     case SDLK_q:
                         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -291,6 +296,9 @@ int tick() {
                     case SDLK_ESCAPE:
                         SDL_SetRelativeMouseMode(SDL_FALSE);
                         stop_focus = 1;
+                        break;
+                    default:
+                        camera_up[0] = 0.0f;
                         break;
                 }
               
@@ -309,15 +317,16 @@ int tick() {
                 direction[0] = cos(glm_deg(yaw)) * cos(glm_deg(pitch));
                 direction[1] = sin(glm_deg(pitch));
                 direction[2] = sin(glm_deg(yaw)) * cos(glm_deg(pitch));
-                printf("%d, %d\n", event.motion.xrel, event.motion.yrel);
                 glm_vec3_normalize_to(direction, camera_front);
+                break;
+            default:
+                camera_up[0] = 0.0f;
                 break;
         }
     }
     glClearColor(0.5f, 0.2f, 1.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
-    vec3 axis;
     axis[0] = 1.0f;
     axis[1] = 1.0f;
     axis[2] = 1.0f;
@@ -378,7 +387,7 @@ int tick() {
     //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
 
     SDL_GL_SwapWindow(window);
-    //printf("%f %f %f\n", camera_position[0], camera_position[1], camera_position[2]);
+    printf("%f %f %f\n", camera_position[0], camera_position[1], camera_position[2]);
 
     return 0;
 }
