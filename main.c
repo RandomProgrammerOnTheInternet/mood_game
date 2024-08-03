@@ -62,9 +62,9 @@ bool stop_focus = 0;
 u32 VAO;
 u32 VBO;
 
-vec3 camera_position = { 0.0f, 0.0f, 3.0f };
-vec3 camera_front = { 0.0f, 0.0f, -1.0f };
-vec3 camera_up = { 0.0f, -1.0f, 0.0f };
+vec3 camera_position = {0.0f, 0.0f, 3.0f};
+vec3 camera_front = {0.0f, 0.0f, -1.0f};
+vec3 camera_up = {0.0f, -1.0f, 0.0f};
 
 f32 pitch = 0.0f;
 f32 yaw = 90.0f;
@@ -81,8 +81,7 @@ int tick();
 float mouse_callback(f32 x_pos, f32 y_pos);
 char *read_whole_file(FILE *);
 
-int main()
-{
+int main() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
 	window = SDL_CreateWindow(
 		"m        o        o        d", SDL_WINDOWPOS_CENTERED_DISPLAY(0),
@@ -191,13 +190,13 @@ int main()
 	return 0;
 }
 
-int tick()
-{
+int tick() {
 	if(SDL_GetWindowFlags(window) == SDL_WINDOW_INPUT_FOCUS |
 		   SDL_WINDOW_MOUSE_FOCUS &&
 	   stop_focus == 0) {
 		SDL_SetRelativeMouseMode(SDL_TRUE);
-	} else if(SDL_GetWindowFlags(window) == SDL_WINDOW_MOUSE_FOCUS &&
+	}
+    else if(SDL_GetWindowFlags(window) == SDL_WINDOW_MOUSE_FOCUS &&
 			  stop_focus == 1) {
 		stop_focus = 0;
 	}
@@ -208,7 +207,7 @@ int tick()
 	vec3 camera_front_up;
 	vec3 direction;
 	bool first_mouse = 1;
-	vec3 axis = { 1.0f, 0.0f, 0.0f };
+	vec3 axis = {1.0f, 0.0f, 0.0f};
 	vec3 camera_normalize = { camera_front[0], 0.0f, camera_front[2] };
 	glm_vec3_normalize(camera_normalize);
 	while(SDL_PollEvent(&event)) {
@@ -327,7 +326,7 @@ int tick()
 	 * boilerplate makes sure that stuff like this doesn't happen.
 	 * Seriously? Forgetting to set the uniform of the texture?
 	 */
-	uint32_t tex0_location = glGetUniformLocation(shader_program, "ourTexture");
+	u32 tex0_location = glGetUniformLocation(shader_program, "ourTexture");
 	glUniform1i(tex0_location, 0);
 
 	glBindVertexArray(VAO);
@@ -347,8 +346,7 @@ int tick()
 	return 0;
 }
 
-char *read_whole_file(FILE *f)
-{
+char *read_whole_file(FILE *f) {
 	fseek(f, 0, SEEK_END);
 	long fsize = ftell(f);
 	fseek(f, 0, SEEK_SET);
