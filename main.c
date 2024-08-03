@@ -21,73 +21,15 @@ typedef uint64_t u64;
 typedef float f32;
 typedef double f64;
 
-
-/* f32 vertices[] = {
-    // positions          // colors           // texture coords
-     0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
-     0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
-    -0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
-    -0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
-}; */
-
-f32 vertices[] = {
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-     0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-    -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-
-    -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-     0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-     0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-    -0.5f, -0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-    -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-
-    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f,
-     0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 1.0f,
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-     0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  1.0f, 0.0f,
-    -0.5f,  0.5f,  0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 0.0f,
-    -0.5f,  0.5f, -0.5f, 0.0f, 0.0f, 0.0f,  0.0f, 1.0f
-
-};
-
-u32 indices[] = {
-    0, 1, 3,   // first triangle
-    1, 2, 3,    // second triangle
-    2, 3, 5,
-    3, 4, 5,
-    4, 5, 7,
-    5, 6, 7,
-    6, 7, 9,
-    7, 8, 9,
-    8, 9, 11,
-    9, 10, 11,
-    10, 11, 13,
-    11, 12, 13
+f32 square_vertices[] = {
+    // first triangle
+     0.5f,  0.5f, 0.0f, 1.0f, 1.0f,  // top right
+    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,  // top left 
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
+    // second triangle
+     0.5f, -0.5f, 0.0f, 1.0f, 0.0f,  // bottom right
+    -0.5f,  0.5f, 0.0f, 0.0f, 1.0f,   // top left
+    -0.5f, -0.5f, 0.0f, 0.0f, 0.0f  // bottom left 
 };
 
 u32 vertex_shader;
@@ -107,13 +49,18 @@ f32 mouse_ycor = 240;
 f32 mouse_x_offset;
 f32 mouse_y_offset;
 
-SDL_Window* window = NULL;
+/*typedef struct {
+    vec3 bottom_left;
+    vec3 top_right;
+    const u8 vertices = 6;
+} wall;*/
+
+SDL_Window *window = NULL;
 SDL_Event event;
 bool keep_window_open = 1;
 bool stop_focus = 0;
 u32 VAO;
 u32 VBO;
-u32 EBO;
 
 vec3 camera_position = {0.0f, 0.0f,  3.0f};
 vec3 camera_front = {0.0f, 0.0f, -1.0f};
@@ -131,7 +78,6 @@ f32 delta_time = 0.0f;
 f32 last_frame = 0.0f;
 
 int tick();
-void framebuffer_size_callback(SDL_Window*, u32, u32);
 float mouse_callback(f32 x_pos, f32 y_pos);
 char* read_whole_file(FILE*);
 
@@ -157,14 +103,16 @@ int main() {
 	  fclose(f);
 
     glEnable(GL_DEPTH_TEST);
+    //glEnable(GL_CULL_FACE);
     
+    glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
     stbi_set_flip_vertically_on_load(true);
     data = stbi_load("textures/texture.jpg", &tex_width, &tex_height, &nr_channels, 0);
     glGenTextures(1, &texture);
     glBindTexture(GL_TEXTURE_2D, texture);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
     glGenerateMipmap(GL_TEXTURE_2D);
-    stbi_image_free(data);
+    stbi_image_free(data); 
 
     vertex_shader = glCreateShader(GL_VERTEX_SHADER);
     glShaderSource(vertex_shader, 1, &glvsrc, NULL);
@@ -187,24 +135,19 @@ int main() {
     // So, We generate both VAO and VBO, with VAO first and VBO second.
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
-    glGenBuffers(1, &EBO);
     // Then we *bind* the VAO to the uninited VBO.
     glBindVertexArray(VAO);
     // Now, we switch focus to the VBO and upload it's data.
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices, GL_STATIC_DRAW);
 
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
     // Continue as normal.
     // I can't belive you can't even follow a tutorial.
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(0);
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
-    glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-    glEnableVertexAttribArray(2);
 
     // Also, you only really need to call this once. You are not doing hot reloading
     // for shaders.
@@ -304,14 +247,14 @@ int tick() {
               
                 break;
             case SDL_MOUSEMOTION:
-                yaw += event.motion.xrel * 0.000005;
-                pitch += -event.motion.yrel * 0.000005;
+                yaw += event.motion.xrel * 0.00005;
+                pitch += -event.motion.yrel * 0.00005;
 
-                if(pitch > (glm_deg(89.999f) * 0.000005)) {
-                    pitch = glm_deg(89.999f) * 0.000005;
+                if(pitch > (glm_deg(89.0f))) {
+                    pitch = glm_deg(89.0f);
                 }
-                if(pitch < (glm_deg(-89.999f) * 0.000005)) {
-                    pitch = glm_deg(-89.999f) * 0.000005;
+                if(pitch < (glm_deg(-89.0f))) {
+                    pitch = glm_deg(-89.0f);
                 }
 
                 direction[0] = cos(glm_deg(yaw)) * cos(glm_deg(pitch));
@@ -324,7 +267,7 @@ int tick() {
                 break;
         }
     }
-    glClearColor(0.5f, 0.2f, 1.0f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     
     axis[0] = 1.0f;
@@ -339,29 +282,15 @@ int tick() {
     glm_mat4_identity(view);
     mat4 projection;
     glm_mat4_identity(projection);
-    glm_perspective(glm_deg(114), 640.0f / 480.0f, 0.1f, 100.0f, projection);
+    glm_perspective(glm_deg(114), 640.0f / 480.0f, 0.0001f, 5.0f, projection);
     u32 projection_location = glGetUniformLocation(shader_program, "projection");
     glUniformMatrix4fv(projection_location, 1, GL_FALSE, projection[0]);
             
-    vec3 cube_positions[10] = {
-        0.0f,  0.0f,  0.0f, 
-        2.0f,  5.0f, -15.0f, 
-        -1.5f, -2.2f, -2.5f,  
-        -3.8f, -2.0f, -12.3f,  
-        2.4f, -0.4f, -3.5f,  
-        -1.7f,  3.0f, -7.5f,  
-        1.3f, -2.0f, -2.5f,  
-        1.5f,  2.0f, -2.5f, 
-        1.5f,  0.2f, -1.5f,
-        -1.3f,  1.0f, -1.5f  
-    };
+    vec3 position = {0.0f, 0.0f, 0.0f};
     
     f32 radius = 10.0f;
     f32 cam_x = sin(SDL_GetTicks64() / 1000.0f) * radius;
     f32 cam_z = cos(SDL_GetTicks64() / 1000.0f) * radius;
-    vec3 a = {cam_x, 0.0f, cam_z};
-    vec3 b = {0.0f, 0.0f, 0.0f};
-    vec3 c = {0.0f, 1.0f, 0.0f};
     vec3 camera_pos_front;
     glm_vec3_add(camera_position, camera_front, camera_pos_front);
     glm_lookat(camera_position, camera_pos_front, camera_up, view);
@@ -369,31 +298,19 @@ int tick() {
     glUniformMatrix4fv(view_location, 1, GL_FALSE, view[0]);
 
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, texture);
+    glBindTexture(GL_TEXTURE_2D, texture); 
     glBindVertexArray(VAO);
-    for(int i = 0; i < 10; i++) {
-        mat4 model;
-        glm_mat4_identity(model);
-        glm_translate(model, cube_positions[i]);
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-        f32 angle = glm_deg(20) * i;
-        glm_spin(model, angle, axis);
-        u32 model_location = glGetUniformLocation(shader_program, "model");
-        glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
-        
-        glDrawArrays(GL_TRIANGLES, 0, 36);
-    }
-    //glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, EBO);
-    //glDrawElements(GL_TRIANGLES, 36, GL_UNSIGNED_INT, 0);
+    mat4 model;
+    glm_mat4_identity(model);
+    glm_translate(model, position);
+    u32 model_location = glGetUniformLocation(shader_program, "model");
+    glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
 
     SDL_GL_SwapWindow(window);
     printf("%f %f %f\n", camera_position[0], camera_position[1], camera_position[2]);
 
     return 0;
-}
-
-void framebuffer_size_callback(SDL_Window* window, u32 window_width, u32 window_height) {
-    glViewport(0, 0, window_width, window_height);
 }
 
 char* read_whole_file(FILE *f) {
@@ -406,4 +323,3 @@ char* read_whole_file(FILE *f) {
 
     return str;
 }
-
