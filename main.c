@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <stdint.h>
+#include <math.h>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define GL_GLEXT_PROTOTYPES
@@ -23,13 +24,13 @@ typedef double f64;
 
 f32 square_vertices[] = {
 	// first triangle
-	0.5f, 0.5f, 0.0f, 1.0f, 1.0f, // top right
-	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, // top left
-	0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+	1.0f, 1.0f, 0.0f, 1.0f, 1.0f, // top right
+	0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
+	1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
 	// second triangle
-	0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-	-0.5f, 0.5f, 0.0f, 0.0f, 1.0f, // top left
-	-0.5f, -0.5f, 0.0f, 0.0f, 0.0f // bottom left
+	1.0f, 0.0f, 0.0f, 1.0f, 0.0f, // bottom right
+	0.0f, 1.0f, 0.0f, 0.0f, 1.0f, // top left
+	0.0f, 0.0f, 0.0f, 0.0f, 0.0f // bottom left
 };
 
 u32 vertex_shader;
@@ -49,11 +50,18 @@ f32 mouse_ycor = 240;
 f32 mouse_x_offset;
 f32 mouse_y_offset;
 
-/*typedef struct {
+typedef struct {
     vec3 bottom_left;
     vec3 top_right;
-    const u8 vertices = 6;
-} wall;*/
+} wall;
+
+/*typedef struct {
+    u16 id;
+    wall walls[];
+    wall roof[];
+    wall floor[];
+    i16 roof_height, floor_height;
+} sector;*/
 
 SDL_Window *window = NULL;
 SDL_Event event;
@@ -62,7 +70,7 @@ bool stop_focus = 0;
 u32 VAO;
 u32 VBO;
 
-vec3 camera_position = {0.0f, 0.0f, 3.0f};
+vec3 camera_position = {0.0f, 0.5f, 0.0f};
 vec3 camera_front = {0.0f, 0.0f, -1.0f};
 vec3 camera_up = {0.0f, -1.0f, 0.0f};
 
@@ -80,6 +88,7 @@ f32 last_frame = 0.0f;
 int tick();
 float mouse_callback(f32 x_pos, f32 y_pos);
 char *read_whole_file(FILE *);
+void draw_wall(wall);
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -191,7 +200,7 @@ int main() {
 }
 
 int tick() {
-	if(SDL_GetWindowFlags(window) == SDL_WINDOW_INPUT_FOCUS |
+	if((SDL_GetWindowFlags(window) == SDL_WINDOW_INPUT_FOCUS) |
 		   SDL_WINDOW_MOUSE_FOCUS &&
 	   stop_focus == 0) {
 		SDL_SetRelativeMouseMode(SDL_TRUE);
@@ -208,7 +217,7 @@ int tick() {
 	vec3 direction;
 	bool first_mouse = 1;
 	vec3 axis = {1.0f, 0.0f, 0.0f};
-	vec3 camera_normalize = { camera_front[0], 0.0f, camera_front[2] };
+	vec3 camera_normalize = {camera_front[0], 0.0f, camera_front[2]};
 	glm_vec3_normalize(camera_normalize);
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
@@ -228,19 +237,19 @@ int tick() {
 			case SDLK_w:
 				glm_vec3_muladds(camera_normalize, camera_speed,
 								 camera_position);
-				camera_position[1] = 0.0f;
+				camera_position[1] = 0.5f;
 				break;
 			case SDLK_s:
 				glm_vec3_mulsubs(camera_normalize, camera_speed,
 								 camera_position);
-				camera_position[1] = 0.0f;
+				camera_position[1] = 0.5f;
 				break;
 			case SDLK_a:
 				glm_vec3_cross(camera_normalize, camera_up, camera_front_up);
 				glm_vec3_normalize(camera_front_up);
 				glm_vec3_muladds(camera_front_up, camera_speed,
 								 camera_position);
-				camera_position[1] = 0.0f;
+				camera_position[1] = 0.5f;
 				break;
 			case SDLK_d:
 				camera_up[0] = 1.0f / 3.0f;
@@ -248,7 +257,7 @@ int tick() {
 				glm_vec3_normalize(camera_front_up);
 				glm_vec3_mulsubs(camera_front_up, camera_speed,
 								 camera_position);
-				camera_position[1] = 0.0f;
+				camera_position[1] = 0.5f;
 				break;
 			case SDLK_q:
 				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
@@ -329,19 +338,35 @@ int tick() {
 	u32 tex0_location = glGetUniformLocation(shader_program, "ourTexture");
 	glUniform1i(tex0_location, 0);
 
-	glBindVertexArray(VAO);
+	/*glBindVertexArray(VAO);
 	mat4 model;
 	glm_mat4_identity(model);
 	glm_translate(model, position);
 	u32 model_location = glGetUniformLocation(shader_program, "model");
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
-	glDrawArrays(GL_TRIANGLES, 0, 6);
+	glDrawArrays(GL_TRIANGLES, 0, 6);*/
+    wall cool_wall;
+    glm_vec3_fill(cool_wall.bottom_left, 0.0f);
+    glm_vec3_fill(cool_wall.top_right, 1.0f);
+    draw_wall(cool_wall);
+
+    wall uncool_wall;
+    glm_vec3_fill(uncool_wall.bottom_left, 0.0f);
+    glm_vec3_fill(uncool_wall.top_right, 0.0f);
+    uncool_wall.top_right[0] = 1.0f;
+    draw_wall(uncool_wall);
+    
+    wall coolest_wall;
+    glm_vec3_fill(coolest_wall.bottom_left, 0.0f);
+    glm_vec3_fill(coolest_wall.top_right, 0.0f);
+    coolest_wall.top_right[2] = -1.0f;
+    draw_wall(coolest_wall);
 
 	SDL_GL_SwapWindow(window);
-
-	// No.
-	/*printf("%f %f %f\n", camera_position[0], camera_position[1],
-		   camera_position[2]);*/
+    // debug i guess
+	/*
+	printf("%f %f %f | %f\n", camera_position[0], camera_position[1],
+		   camera_position[2], pitch);*/
 
 	return 0;
 }
@@ -357,10 +382,26 @@ char *read_whole_file(FILE *f) {
 	return str;
 }
 
-/*level load_level(FILE* f) {
-    char level_data[];
-    // probably unsafe code
-    while(fgets(level_data, sizeof(level_data), f) != NULL) {
-        if(level_data[])
-    }
-}*/
+void draw_wall(wall w) {
+    vec3 axis = {0.0f, 1.0f, 0.0f};
+    glBindVertexArray(VAO);
+    mat4 model;
+    glm_mat4_identity(model);
+    glm_translate(model, w.bottom_left);
+    
+    // rotation algorithm thingy
+    // part 1: find slope
+    f32 slope = (w.top_right[2] - w.bottom_left[2]) / (w.bottom_left[0] - w.top_right[0]);
+    // numero dos: find angle using inverse tangent
+    f32 angle = atan(slope);
+    // Rotation Algorithm Thingy Episode III: The Last Function
+    glm_rotate_at(model, w.bottom_left, angle, axis);
+    // my jokes suckk
+
+    // scale algorithm thingy (to make longer and taller walls because that looks cool) !!!COMING SOON IN THE NEXT UPDATE!!! yay!
+
+    u32 model_location = glGetUniformLocation(shader_program, "model");
+    
+    glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
+    glDrawArrays(GL_TRIANGLES, 0, 6);
+}
