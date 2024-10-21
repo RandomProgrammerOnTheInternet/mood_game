@@ -89,6 +89,7 @@ int tick();
 float mouse_callback(f32 x_pos, f32 y_pos);
 char *read_whole_file(FILE *);
 void draw_wall(wall);
+wall set_wall(wall, f32, f32, f32, f32, f32, f32);
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -346,20 +347,15 @@ int tick() {
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 	glDrawArrays(GL_TRIANGLES, 0, 6);*/
     wall cool_wall;
-    glm_vec3_fill(cool_wall.bottom_left, 0.0f);
-    glm_vec3_fill(cool_wall.top_right, 1.0f);
+    cool_wall = set_wall(cool_wall, 1.0f, 1.0f, 1.0f, 2.0f, 2.0f, 2.0f);
     draw_wall(cool_wall);
 
     wall uncool_wall;
-    glm_vec3_fill(uncool_wall.bottom_left, 0.0f);
-    glm_vec3_fill(uncool_wall.top_right, 0.0f);
-    uncool_wall.top_right[0] = 1.0f;
+    uncool_wall = set_wall(uncool_wall, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f, 0.0f);
     draw_wall(uncool_wall);
     
     wall coolest_wall;
-    glm_vec3_fill(coolest_wall.bottom_left, 0.0f);
-    glm_vec3_fill(coolest_wall.top_right, 0.0f);
-    coolest_wall.top_right[2] = -1.0f;
+    coolest_wall = set_wall(coolest_wall, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
     draw_wall(coolest_wall);
 
 	SDL_GL_SwapWindow(window);
@@ -388,7 +384,7 @@ void draw_wall(wall w) {
     mat4 model;
     glm_mat4_identity(model);
     glm_translate(model, w.bottom_left);
-    
+
     // rotation algorithm thingy
     // part 1: find slope
     f32 slope = (w.top_right[2] - w.bottom_left[2]) / (w.bottom_left[0] - w.top_right[0]);
@@ -397,11 +393,31 @@ void draw_wall(wall w) {
     // Rotation Algorithm Thingy Episode III: The Last Function
     glm_rotate_at(model, w.bottom_left, angle, axis);
     // my jokes suckk
-
+    
     // scale algorithm thingy (to make longer and taller walls because that looks cool) !!!COMING SOON IN THE NEXT UPDATE!!! yay!
+    // part 1: find new length using geometry (it finally makes sense why i need geometry now)
+    f32 length_x = w.top_right[0] - w.bottom_left[0];
+    f32 length_y = w.top_right[1] - w.bottom_left[1];
+    f32 length_z = w.top_right[2] - w.bottom_left[2];
+    // part 2: scale
+    vec3 scale_vector = {length_x, length_y, length_z};
+    glm_scale(model, scale_vector);
 
+    
     u32 model_location = glGetUniformLocation(shader_program, "model");
     
     glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
     glDrawArrays(GL_TRIANGLES, 0, 6);
+}
+
+// sets wall coordinates because it's easier this way and im lazy */
+wall set_wall(wall w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
+    w.bottom_left[0] = x1;
+    w.bottom_left[1] = y1;
+    w.bottom_left[2] = z1;
+    w.top_right[0] = x2;
+    w.top_right[1] = y2;
+    w.top_right[2] = z2;
+
+    return w;
 }
