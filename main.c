@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include "sanitygl.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define GL_GLEXT_PROTOTYPES
@@ -105,7 +106,7 @@ int main() {
 	SDL_GL_MakeCurrent(window, glctx);
 	SDL_GL_SetSwapInterval(1);
 	// Your viewport should be the same as your window dimensions.
-	glViewport(0, 0, width, height);
+	gl_viewport(0, 0, width, height);
 	FILE *v = fopen("vert.glsl", "r");
 	FILE *f = fopen("frag.glsl", "r");
 
@@ -116,72 +117,72 @@ int main() {
 	fclose(v);
 	fclose(f);
 
-	glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
+	gl_enable(GL_DEPTH_TEST);
+	//gl_enable(GL_CULL_FACE);
 
-	//glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	//gl_pixel_storei(GL_UNPACK_ALIGNMENT, 1);
 
 	stbi_set_flip_vertically_on_load(true);
 	data = stbi_load("textures/texture.jpg", &tex_width, &tex_height,
 					 &nr_channels, 0);
-	glGenTextures(1, &texture);
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+	gl_gen_textures(1, &texture);
+	gl_active_texture(GL_TEXTURE0);
+	gl_bind_texture(GL_TEXTURE_2D, texture);
+	gl_tex_parameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	gl_tex_parameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	gl_tex_parameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
 					GL_NEAREST_MIPMAP_NEAREST);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+	gl_tex_parameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB,
+	gl_tex_image2D(GL_TEXTURE_2D, 0, GL_RGB, tex_width, tex_height, 0, GL_RGB,
 				 GL_UNSIGNED_BYTE, data);
-	glGenerateMipmap(GL_TEXTURE_2D);
+	gl_generate_mipmap(GL_TEXTURE_2D);
 
 	stbi_image_free(data);
 
-	vertex_shader = glCreateShader(GL_VERTEX_SHADER);
-	glShaderSource(vertex_shader, 1, &glvsrc, NULL);
-	glCompileShader(vertex_shader);
-	fragment_shader = glCreateShader(GL_FRAGMENT_SHADER);
-	glShaderSource(fragment_shader, 1, &glfsrc, NULL);
-	glCompileShader(fragment_shader);
-	shader_program = glCreateProgram();
-	glAttachShader(shader_program, vertex_shader);
-	glAttachShader(shader_program, fragment_shader);
-	glLinkProgram(shader_program);
-	glDeleteShader(vertex_shader);
-	glDeleteShader(fragment_shader);
+	vertex_shader = gl_create_shader(GL_VERTEX_SHADER);
+	gl_shader_source(vertex_shader, 1, &glvsrc, NULL);
+	gl_compile_shader(vertex_shader);
+	fragment_shader = gl_create_shader(GL_FRAGMENT_SHADER);
+	gl_shader_source(fragment_shader, 1, &glfsrc, NULL);
+	gl_compile_shader(fragment_shader);
+	shader_program = gl_create_program();
+	gl_attach_shader(shader_program, vertex_shader);
+	gl_attach_shader(shader_program, fragment_shader);
+	gl_link_program(shader_program);
+	gl_delete_shader(vertex_shader);
+	gl_delete_shader(fragment_shader);
 	free(vsrc);
 	free(fsrc);
 
 	// HELLO ABDULMOHSIN!
 	// README!!!
 	// So, We generate both VAO and VBO, with VAO first and VBO second.
-	glGenVertexArrays(1, &VAO);
-	glGenBuffers(1, &VBO);
+	gl_gen_vertex_arrays(1, &VAO);
+	gl_gen_buffers(1, &VBO);
 	// Then we *bind* the VAO to the uninited VBO.
-	glBindVertexArray(VAO);
+	gl_bind_vertex_array(VAO);
 	// Now, we switch focus to the VBO and upload it's data.
-	glBindBuffer(GL_ARRAY_BUFFER, VBO);
-	glBufferData(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices,
+	gl_bind_buffer(GL_ARRAY_BUFFER, VBO);
+	gl_buffer_data(GL_ARRAY_BUFFER, sizeof(square_vertices), square_vertices,
 				 GL_STATIC_DRAW);
 
 	// Continue as normal.
 	// I can't belive you can't even follow a tutorial.
 
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+	gl_vertex_attrib_pointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
 						  (void *)0);
-	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
+	gl_enable_vertex_attrib_array(0);
+	gl_vertex_attrib_pointer(1, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float),
 						  (void *)(3 * sizeof(float)));
-	glEnableVertexAttribArray(1);
+	gl_enable_vertex_attrib_array(1);
 	/* wHYYYYYYYYY CANT Isduasjdnakdhsa duasdh sa dhisdyYO Yshaudhsadsaodhaosuhd*/
 
 	// Also, you only really need to call this once. You are not doing hot reloading
 	// for shaders.
-	glUseProgram(shader_program);
+	gl_use_program(shader_program);
 
-	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	gl_polygon_mode(GL_FRONT_AND_BACK, GL_FILL);
 
 	// Your optimzation is terrible. keep_window_open is a boolean,
 	// you don't need to check if it's 1 or not, just insert the statement.
@@ -229,7 +230,7 @@ int tick() {
 			if(event.window.event == SDL_WINDOWEVENT_RESIZED) {
 				width = event.window.data1;
 				height = event.window.data2;
-				glViewport(0, 0, width, height);
+				gl_viewport(0, 0, width, height);
 				SDL_SetRelativeMouseMode(SDL_TRUE);
 			}
 			break;
@@ -261,10 +262,10 @@ int tick() {
 				camera_position[1] = 0.5f;
 				break;
 			case SDLK_q:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+				gl_polygon_mode(GL_FRONT_AND_BACK, GL_LINE);
 				break;
 			case SDLK_e:
-				glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+				gl_polygon_mode(GL_FRONT_AND_BACK, GL_FILL);
 				break;
 			case SDLK_ESCAPE:
 				SDL_SetRelativeMouseMode(SDL_FALSE);
@@ -297,8 +298,8 @@ int tick() {
 			break;
 		}
 	}
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	gl_clear_color(0.0f, 0.0f, 0.0f, 1.0f);
+	gl_clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
 	axis[0] = 1.0f;
 	axis[1] = 1.0f;
@@ -314,7 +315,7 @@ int tick() {
 	glm_mat4_identity(projection);
 	glm_perspective(glm_deg(114), 640.0f / 480.0f, 0.0001f, 5.0f, projection);
 	u32 projection_location =
-		glGetUniformLocation(shader_program, "projection");
+		gl_get_uniform_location(shader_program, "projection");
 	glUniformMatrix4fv(projection_location, 1, GL_FALSE, projection[0]);
 
 	vec3 position = { 0.0f, 0.0f, 0.0f };
@@ -326,18 +327,18 @@ int tick() {
 	glm_vec3_add(camera_position, camera_front, camera_pos_front);
 	glm_lookat(camera_position, camera_pos_front, camera_up, view);
 	u32 view_location = glGetUniformLocation(shader_program, "view");
-	glUniformMatrix4fv(view_location, 1, GL_FALSE, view[0]);
+	gl_uniform_matrix4fv(view_location, 1, GL_FALSE, view[0]);
 
-	glActiveTexture(GL_TEXTURE0);
-	glBindTexture(GL_TEXTURE_2D, texture);
+	gl_active_texture(GL_TEXTURE0);
+	gl_bind_texture(GL_TEXTURE_2D, texture);
 
 	/* Please learn Vulkan at this point. At least it *tells* you
 	 * where you screwed up via validation layers, and also the
 	 * boilerplate makes sure that stuff like this doesn't happen.
 	 * Seriously? Forgetting to set the uniform of the texture?
 	 */
-	u32 tex0_location = glGetUniformLocation(shader_program, "ourTexture");
-	glUniform1i(tex0_location, 0);
+	u32 tex0_location = gl_get_uniform_location(shader_program, "ourTexture");
+	gl_uniform1i(tex0_location, 0);
 
 	/*glBindVertexArray(VAO);
 	mat4 model;
@@ -380,7 +381,7 @@ char *read_whole_file(FILE *f) {
 
 void draw_wall(wall w) {
     vec3 axis = {0.0f, 1.0f, 0.0f};
-    glBindVertexArray(VAO);
+    gl_bind_vertex_array(VAO);
     mat4 model;
     glm_mat4_identity(model);
     glm_translate(model, w.bottom_left);
@@ -394,7 +395,7 @@ void draw_wall(wall w) {
     glm_rotate_at(model, w.bottom_left, angle, axis);
     // my jokes suckk
     
-    // scale algorithm thingy (to make longer and taller walls because that looks cool) !!!COMING SOON IN THE NEXT UPDATE!!! yay!
+    // scale algorithm thingy (to make longer and taller walls because that looks cool) !!!CAME SOON IN THE NEXT UPDATE!!! yay!
     // part 1: find new length using geometry (it finally makes sense why i need geometry now)
     f32 length_x = w.top_right[0] - w.bottom_left[0];
     f32 length_y = w.top_right[1] - w.bottom_left[1];
@@ -404,10 +405,10 @@ void draw_wall(wall w) {
     glm_scale(model, scale_vector);
 
     
-    u32 model_location = glGetUniformLocation(shader_program, "model");
+    u32 model_location = gl_get_uniform_location(shader_program, "model");
     
-    glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
-    glDrawArrays(GL_TRIANGLES, 0, 6);
+    gl_uniform_matrix4fv(model_location, 1, GL_FALSE, model[0]);
+    gl_draw_arrays(GL_TRIANGLES, 0, 6);
 }
 
 // sets wall coordinates because it's easier this way and im lazy */
