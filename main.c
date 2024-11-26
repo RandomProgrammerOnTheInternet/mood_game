@@ -56,6 +56,12 @@ typedef struct {
     vec3 top_right;
 } wall;
 
+typedef struct {
+    vec3 bottom_left;
+    vec3 bottom_right;
+    vec3 top_right;
+} sloped_wall;
+
 /*typedef struct {
     u16 id;
     wall walls[];
@@ -90,7 +96,9 @@ int tick();
 float mouse_callback(f32 x_pos, f32 y_pos);
 char *read_whole_file(FILE *);
 void draw_wall(wall);
-wall set_wall(wall, f32, f32, f32, f32, f32, f32);
+void set_wall(wall*, f32, f32, f32, f32, f32, f32);
+void draw_sloped_wall(sloped_wall);
+void set_sloped_wall(sloped_wall*, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -348,16 +356,16 @@ int tick() {
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 	glDrawArrays(GL_TRIANGLES, 0, 6);*/
     wall cool_wall;
-    cool_wall = set_wall(cool_wall, 1.0f, 1.0f, 1.0f, 2.0f, 2.0f, 2.0f);
+    set_wall(&cool_wall, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, -1.0f);
     draw_wall(cool_wall);
 
     wall uncool_wall;
-    uncool_wall = set_wall(uncool_wall, 0.0f, 0.0f, 0.0f, 10.0f, 10.0f, 0.0f);
+    set_wall(&uncool_wall, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
     draw_wall(uncool_wall);
     
-    wall coolest_wall;
-    coolest_wall = set_wall(coolest_wall, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-    draw_wall(coolest_wall);
+    sloped_wall coolest_wall;
+    set_sloped_wall(&coolest_wall, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+    draw_sloped_wall(coolest_wall);
 
 	SDL_GL_SwapWindow(window);
     // debug i guess
@@ -388,9 +396,9 @@ void draw_wall(wall w) {
 
     // rotation algorithm thingy
     // part 1: find slope
-    f32 slope = (w.top_right[2] - w.bottom_left[2]) / (w.bottom_left[0] - w.top_right[0]);
+    f32 angle = (w.top_right[2] - w.bottom_left[2]) / (w.bottom_left[0] - w.top_right[0]);
     // numero dos: find angle using inverse tangent
-    f32 angle = atan(slope);
+    angle = atan(angle);
     // Rotation Algorithm Thingy Episode III: The Last Function
     glm_rotate_at(model, w.bottom_left, angle, axis);
     // my jokes suckk
@@ -411,14 +419,67 @@ void draw_wall(wall w) {
     gl_draw_arrays(GL_TRIANGLES, 0, 6);
 }
 
-// sets wall coordinates because it's easier this way and im lazy */
-wall set_wall(wall w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
-    w.bottom_left[0] = x1;
-    w.bottom_left[1] = y1;
-    w.bottom_left[2] = z1;
-    w.top_right[0] = x2;
-    w.top_right[1] = y2;
-    w.top_right[2] = z2;
+void draw_sloped_wall(sloped_wall w) {
+    vec3 axis = {0.0f, 1.0f, 0.0f};
+    gl_bind_vertex_array(VAO);
+    mat4 model;
+    glm_mat4_identity(model);
+    glm_translate(model, w.bottom_left);
 
-    return w;
+    // rotation algorithm thingy around y axis
+    // part 1: find slope
+    f32 yangle = (w.bottom_right[2] - w.bottom_left[2]) / (w.bottom_left[0] - w.bottom_right[0]);
+    // numero dos: find angle using inverse tangent
+    yangle = atan(yangle);
+    // Rotation Algorithm Thingy Episode III: The Last Function
+    glm_rotate_at(model, w.bottom_left, yangle, axis);
+
+    // rotation algorithm thingy around x axis
+    // part 1: change axis
+    axis[0] = 1.0f;
+    axis[1] = 0.0f;
+    // part 2: find slope
+    f32 xangle = (w.bottom_right[1] - w.top_right[1]) / (w.top_right[2] - w.bottom_right[2]);
+    // part 3: find angle using inverse tangent
+    xangle = atan(xangle);
+    // part 4: glm_rotate_at();
+    glm_rotate_at(model, w.bottom_left, xangle, axis);
+    
+    // scale algorithm thingy (to make longer and taller walls because that looks cool) !!!CAME SOON IN THE NEXT UPDATE!!! yay!
+    // part 1: find new length using geometry (it finally makes sense why i need geometry now)
+    f32 length_x = w.top_right[0] - w.bottom_left[0];
+    // this works somehow
+    f32 length_y = sqrt(pow(w.top_right[1] - w.bottom_left[1], 2) + pow(w.top_right[2] - w.bottom_left[2], 2));
+    f32 length_z = w.top_right[2] - w.bottom_left[2];
+    // part 2: scale
+    vec3 scale_vector = {length_x, length_y, length_z};
+    glm_scale(model, scale_vector);
+
+    
+    u32 model_location = gl_get_uniform_location(shader_program, "model");
+    
+    gl_uniform_matrix4fv(model_location, 1, GL_FALSE, model[0]);
+    gl_draw_arrays(GL_TRIANGLES, 0, 6);
+}
+
+// sets wall coordinates because it's easier this way and im lazy */
+void set_wall(wall *w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
+    w->bottom_left[0] = x1;
+    w->bottom_left[1] = y1;
+    w->bottom_left[2] = z1;
+    w->top_right[0] = x2;
+    w->top_right[1] = y2;
+    w->top_right[2] = z2;
+}
+
+void set_sloped_wall(sloped_wall *w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, f32 x3, f32 y3, f32 z3) {
+    w->bottom_left[0] = x1;
+    w->bottom_left[1] = y1;
+    w->bottom_left[2] = z1;
+    w->bottom_right[0] = x2;
+    w->bottom_right[1] = y2;
+    w->bottom_right[2] = z2;
+    w->top_right[0] = x3;
+    w->top_right[1] = y3;
+    w->top_right[2] = z3;
 }
