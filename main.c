@@ -54,7 +54,7 @@ f32 mouse_y_offset;
 typedef struct {
     vec3 bottom_left;
     vec3 top_right;
-} wall;
+} unsloped_wall;
 
 typedef struct {
     vec3 bottom_left;
@@ -63,11 +63,7 @@ typedef struct {
 } sloped_wall;
 
 /*typedef struct {
-    u16 id;
-    wall walls[];
-    wall roof[];
-    wall floor[];
-    i16 roof_height, floor_height;
+    
 } sector;*/
 
 SDL_Window *window = NULL;
@@ -95,8 +91,8 @@ f32 last_frame = 0.0f;
 int tick();
 float mouse_callback(f32 x_pos, f32 y_pos);
 char *read_whole_file(FILE *);
-void draw_wall(wall);
-void set_wall(wall*, f32, f32, f32, f32, f32, f32);
+void draw_unsloped_wall(unsloped_wall);
+void set_unsloped_wall(unsloped_wall*, f32, f32, f32, f32, f32, f32);
 void draw_sloped_wall(sloped_wall);
 void set_sloped_wall(sloped_wall*, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 
@@ -355,13 +351,13 @@ int tick() {
 	u32 model_location = glGetUniformLocation(shader_program, "model");
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 	glDrawArrays(GL_TRIANGLES, 0, 6);*/
-    wall cool_wall;
-    set_wall(&cool_wall, 0.0f, 0.0f, -1.0f, 1.0f, 1.0f, -1.0f);
-    draw_wall(cool_wall);
+    unsloped_wall cool_wall;
+    set_unsloped_wall(&cool_wall, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+    draw_unsloped_wall(cool_wall);
 
-    wall uncool_wall;
-    set_wall(&uncool_wall, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-    draw_wall(uncool_wall);
+    unsloped_wall uncool_wall;
+    set_unsloped_wall(&uncool_wall, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
+    draw_unsloped_wall(uncool_wall);
     
     sloped_wall coolest_wall;
     set_sloped_wall(&coolest_wall, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
@@ -387,7 +383,7 @@ char *read_whole_file(FILE *f) {
 	return str;
 }
 
-void draw_wall(wall w) {
+void draw_unsloped_wall(unsloped_wall w) {
     vec3 axis = {0.0f, 1.0f, 0.0f};
     gl_bind_vertex_array(VAO);
     mat4 model;
@@ -463,7 +459,7 @@ void draw_sloped_wall(sloped_wall w) {
 }
 
 // sets wall coordinates because it's easier this way and im lazy */
-void set_wall(wall *w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
+void set_unsloped_wall(unsloped_wall *w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2) {
     w->bottom_left[0] = x1;
     w->bottom_left[1] = y1;
     w->bottom_left[2] = z1;
@@ -483,3 +479,7 @@ void set_sloped_wall(sloped_wall *w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32
     w->top_right[1] = y3;
     w->top_right[2] = z3;
 }
+
+/*void set_sector(sector *s) {
+
+}*/
