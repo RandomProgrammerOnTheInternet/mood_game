@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <math.h>
+#include <stdarg.h>
 #include "sanitygl.h"
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -62,6 +63,14 @@ typedef struct {
     vec3 top_right;
 } sloped_wall;
 
+typedef struct {
+    bool sloped;
+    union {
+        unsloped_wall u;
+        sloped_wall s;
+    };
+} wall;
+
 /*typedef struct {
     
 } sector;*/
@@ -92,9 +101,11 @@ int tick();
 float mouse_callback(f32 x_pos, f32 y_pos);
 char *read_whole_file(FILE *);
 void draw_unsloped_wall(unsloped_wall);
-void set_unsloped_wall(unsloped_wall*, f32, f32, f32, f32, f32, f32);
+void set_unsloped_wall(unsloped_wall *, f32, f32, f32, f32, f32, f32);
 void draw_sloped_wall(sloped_wall);
-void set_sloped_wall(sloped_wall*, f32, f32, f32, f32, f32, f32, f32, f32, f32);
+void set_sloped_wall(sloped_wall *, f32, f32, f32, f32, f32, f32, f32, f32, f32);
+void set_wall(wall *, bool, f32, f32, f32, f32, f32, f32, ...);
+void draw_wall(wall);
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -351,17 +362,9 @@ int tick() {
 	u32 model_location = glGetUniformLocation(shader_program, "model");
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 	glDrawArrays(GL_TRIANGLES, 0, 6);*/
-    unsloped_wall cool_wall;
-    set_unsloped_wall(&cool_wall, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-    draw_unsloped_wall(cool_wall);
-
-    unsloped_wall uncool_wall;
-    set_unsloped_wall(&uncool_wall, 0.0f, 0.0f, 0.0f, 1.0f, 1.0f, 0.0f);
-    draw_unsloped_wall(uncool_wall);
-    
-    sloped_wall coolest_wall;
-    set_sloped_wall(&coolest_wall, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-    draw_sloped_wall(coolest_wall);
+    wall cool_wall;
+    set_wall(&cool_wall, 1, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
+    draw_wall(cool_wall);
 
 	SDL_GL_SwapWindow(window);
     // debug i guess
@@ -478,6 +481,45 @@ void set_sloped_wall(sloped_wall *w, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32
     w->top_right[0] = x3;
     w->top_right[1] = y3;
     w->top_right[2] = z3;
+}
+
+void set_wall(wall *w, bool sloped, f32 x1, f32 y1, f32 z1, f32 x2, f32 y2, f32 z2, ...) {
+    if(sloped) {
+        w->sloped = 1;
+        va_list vl;
+        va_start(vl, (f64)z2);
+        f32 x3 = va_arg(vl, f64);
+        f32 y3 = va_arg(vl, f64);
+        f32 z3 = va_arg(vl, f64);
+        va_end(vl);
+        w->s.bottom_left[0] = x1;
+        w->s.bottom_left[1] = y1;
+        w->s.bottom_left[2] = z1;
+        w->s.bottom_right[0] = x2;
+        w->s.bottom_right[1] = y2;
+        w->s.bottom_right[2] = z2;
+        w->s.top_right[0] = x3;
+        w->s.top_right[1] = y3;
+        w->s.top_right[2] = z3;
+    }
+    else {
+        w->sloped = 0;
+        w->u.bottom_left[0] = x1;
+        w->u.bottom_left[1] = y1;
+        w->u.bottom_left[2] = z1;
+        w->u.top_right[0] = x2;
+        w->u.top_right[1] = y2;
+        w->u.top_right[2] = z2;
+    }
+}
+
+void draw_wall(wall w) {
+    if(w.sloped) {
+        draw_sloped_wall(w.s);
+    }
+    else {
+        draw_unsloped_wall(w.u);
+    }
 }
 
 /*void set_sector(sector *s) {
