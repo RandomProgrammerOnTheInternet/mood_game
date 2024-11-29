@@ -71,9 +71,12 @@ typedef struct {
     };
 } wall;
 
-/*typedef struct {
-    
-} sector;*/
+typedef struct {
+    u16 id;
+    wall *walls, *floor, *roof;
+    size_t wall_size, floor_size, roof_size;
+    i16 floor_height, roof_height;
+} sector;
 
 SDL_Window *window = NULL;
 SDL_Event event;
@@ -106,6 +109,8 @@ void draw_sloped_wall(sloped_wall);
 void set_sloped_wall(sloped_wall *, f32, f32, f32, f32, f32, f32, f32, f32, f32);
 void set_wall(wall *, bool, f32, f32, f32, f32, f32, f32, ...);
 void draw_wall(wall);
+void set_sector(sector *, i16, i16, size_t, size_t, size_t, ...);
+void draw_sector(sector);
 
 int main() {
 	SDL_Init(SDL_INIT_VIDEO | SDL_INIT_EVENTS);
@@ -362,15 +367,12 @@ int tick() {
 	u32 model_location = glGetUniformLocation(shader_program, "model");
 	glUniformMatrix4fv(model_location, 1, GL_FALSE, model[0]);
 	glDrawArrays(GL_TRIANGLES, 0, 6);*/
-    wall cool_wall;
-    set_wall(&cool_wall, 1, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f);
-    draw_wall(cool_wall);
-
+    
 	SDL_GL_SwapWindow(window);
     // debug i guess
-	/*
-	printf("%f %f %f | %f\n", camera_position[0], camera_position[1],
-		   camera_position[2], pitch);*/
+	
+	//printf("%f %f %f | %f\n", camera_position[0], camera_position[1],
+	//	   camera_position[2], pitch);
 
 	return 0;
 }
@@ -522,6 +524,40 @@ void draw_wall(wall w) {
     }
 }
 
-/*void set_sector(sector *s) {
+void set_sector(sector *s, i16 floor_height, i16 roof_height, size_t floor_size, size_t roof_size, size_t wall_size, ...) {
+    va_list vl;
+    va_start(vl, wall_size);
+    static int id = 0;
+    s->id = id;
+    id++;
+    s->floor_height = floor_height;
+    s->roof_height = roof_height;
+    s->floor_size = floor_size;
+    s->roof_size = roof_size;
+    s->wall_size = wall_size;
+    s->floor = (wall *)malloc(floor_size * sizeof(wall));
+    s->roof = (wall *)malloc(roof_size * sizeof(wall));
+    s->walls = (wall *)malloc(wall_size * sizeof(wall));
+    for(int i = 0; i < floor_size; i++) {
+        s->floor[i] = va_arg(vl, wall);
+    }
+    for(int i = 0; i < roof_size; i++) {
+        s->roof[i] = va_arg(vl, wall);
+    }
+    for(int i = 0; i < wall_size; i++) {
+        s->walls[i] = va_arg(vl, wall);
+    }
+    va_end(vl);
+}
 
-}*/
+void draw_sector(sector s) {
+    for(int i = 0; i < s.floor_size; i++) {
+        draw_wall(s.floor[i]);
+    }
+    for(int i = 0; i < s.roof_size; i++) {
+        draw_wall(s.roof[i]);
+    }
+    for(int i = 0; i < s.wall_size; i++) {
+        draw_wall(s.walls[i]);
+    }
+}
