@@ -1,2 +1,3 @@
-* linguist-language
-*.cee linguist-language=C==
+* linguist-vendored
+*.c linguist-vendored=false
+*.glsl linguist-vendored=false
